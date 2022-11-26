@@ -22,6 +22,7 @@ async function run() {
     try {
         const categoriesCollection = client.db('laptopTrade-db').collection('categories')
         const productsCollection = client.db('laptopTrade-db').collection('allProducts')
+        const usersCollection = client.db('laptopTrade-db').collection('users')
 
         // get all categories
         app.get('/categories', async (req, res) => {
@@ -40,12 +41,27 @@ async function run() {
         })
 
         // get product category wise
-        app.get('/all-products/:id', async (req, res) => {
+        app.get('/category/:id', async (req, res) => {
             const id = req.params.id
             const query = { categoryId: id }
             const cursor = productsCollection.find(query)
             const products = await cursor.toArray()
             res.send(products)
+        })
+
+        // post user
+        app.post('/users', async (req, res) => {
+            const user = req.body
+            const result = await usersCollection.insertOne(user)
+            res.send(result)
+        })
+
+        // get all user
+        app.get('/users', async (req, res) => {
+            const query = {}
+            const cursor = usersCollection.find(query)
+            const users = await cursor.toArray()
+            res.send(users)
         })
 
     }
