@@ -49,6 +49,18 @@ async function run() {
             res.send(products)
         })
 
+        // get filtered products for buyer
+        app.get('/products/:email', async (req, res) => {
+            const email = req.params.email
+
+            const query = {
+                buyerEmail: email
+            }
+            const cursor = productsCollection.find(query)
+            const products = await cursor.toArray()
+            res.send(products)
+        })
+
         // post user
         app.post('/users', async (req, res) => {
             const user = req.body
@@ -62,6 +74,14 @@ async function run() {
             const cursor = usersCollection.find(query)
             const users = await cursor.toArray()
             res.send(users)
+        })
+
+        // get single user
+        app.get('/user/:email', async (req, res) => {
+            const email = req.params.email
+            const query = { email: email }
+            const user = await usersCollection.findOne(query)
+            res.send(user)
         })
 
     }
