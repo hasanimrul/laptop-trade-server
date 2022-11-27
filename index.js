@@ -23,6 +23,7 @@ async function run() {
         const categoriesCollection = client.db('laptopTrade-db').collection('categories')
         const productsCollection = client.db('laptopTrade-db').collection('allProducts')
         const usersCollection = client.db('laptopTrade-db').collection('users')
+        const bookingsCollection = client.db('laptopTrade-db').collection('bookings')
 
         // get all categories
         app.get('/categories', async (req, res) => {
@@ -98,6 +99,30 @@ async function run() {
             const query = { _id: ObjectId(id) }
             const result = await usersCollection.deleteOne(query)
             res.send(result)
+        })
+
+        // store booked products
+        app.post('/booking', async (req, res) => {
+            const booking = req.body
+            const result = await bookingsCollection.insertOne(booking)
+            res.send(result)
+        })
+
+        // get booked products by email
+        app.get('/bookings/:email', async (req, res) => {
+            const email = req.params.email
+            const query = { email: email }
+            const cursor = bookingsCollection.find(query)
+            const bookings = await cursor.toArray()
+            res.send(bookings)
+        })
+
+        // get single booked product
+        app.get('/booking/:id', async (req, res) => {
+            const id = req.params.id
+            const query = { _id: ObjectId(id) }
+            const booking = await bookingsCollection.findOne(query)
+            res.send(booking)
         })
 
     }
