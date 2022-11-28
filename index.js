@@ -120,6 +120,13 @@ async function run() {
             res.send(bookings)
         })
 
+        // app.get('/bookings', async (req, res) => {
+        //     const query = {}
+        //     const cursor = bookingsCollection.find(query)
+        //     const bookings = await cursor.toArray()
+        //     res.send(bookings)
+        // })
+
         // get a single booking
         app.get('/booking/:id', async (req, res) => {
             const id = req.params.id
@@ -129,36 +136,47 @@ async function run() {
         })
 
         // create payment intent
-        app.post('/create-payment-intent', async (req, res) => {
-            const price = req.body.price
-            console.log(price)
-            const amount = parseFloat(price) * 100
 
-            try {
-                const paymentIntent = await stripe.paymentIntents.create({
-                    amount: amount,
-                    currency: 'usd',
-                    payment_method_types: ['card'],
-                })
-                res.send({ clientSecret: paymentIntent.client_secret })
-            } catch (err) {
-                console.log(err)
-            }
-        })
+        app.post('/create-payment-intent', async (req, res) => {
+            const booking = req.body;
+            const price = booking.resalePrice;
+            const amount = parseInt(price * 100);
+
+            const paymentIntent = await stripe.paymentIntents.create({
+                currency: 'usd',
+                amount: amount,
+                "payment_method_types": [
+                    "card"
+                ]
+            });
+            res.send({
+                clientSecret: paymentIntent.client_secret,
+            });
+        });
+
+
 
         // store payment
         app.post('/payments', async (req, res) => {
             const payment = req.body
             const result = await paymentsCollection.insertOne(payment)
-            const id = payment.bookingId
-            const filter = { _id: ObjectId(id) }
-            const updatedDoc = {
+            const bookingId = payment.bookingId
+            const bookingFilter = { _id: ObjectId(bookingId) }
+            const bookingUpdatedDoc = {
                 $set: {
                     paid: true,
                     transactionId: payment.transactionId
                 }
             }
-            const updatedResult = await bookingsCollection.updateOne(filter, updatedDoc)
+            const productId = payment.productId
+            const productFilter = { _id: ObjectId(productId) }
+            const productUpdatedDoc = {
+                $set: {
+                    paid: true
+                }
+            }
+            const updateBooking = await bookingsCollection.updateOne(bookingFilter, bookingUpdatedDoc)
+            const updateProduct = await productsCollection.updateOne(productFilter, productUpdatedDoc)
             res.send(result)
         })
 
