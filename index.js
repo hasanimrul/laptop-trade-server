@@ -12,6 +12,8 @@ const port = process.env.PORT || 5000
 app.use(cors())
 app.use(express.json())
 
+
+
 // database connection
 const uri = process.env.DB_URI;
 const client = new MongoClient(uri, {
@@ -27,6 +29,8 @@ async function run() {
         const usersCollection = client.db('laptopTrade-db').collection('users')
         const bookingsCollection = client.db('laptopTrade-db').collection('bookings')
         const paymentsCollection = client.db('laptopTrade-db').collection('payments')
+
+
 
         // get all categories
         app.get('/categories', async (req, res) => {
@@ -53,12 +57,12 @@ async function run() {
             res.send(products)
         })
 
-        // get filtered products for buyer
+        // get filtered products for seller
         app.get('/products/:email', async (req, res) => {
             const email = req.params.email
 
             const query = {
-                buyerEmail: email
+                sellerEmail: email
             }
             const cursor = productsCollection.find(query)
             const products = await cursor.toArray()
@@ -121,12 +125,7 @@ async function run() {
             res.send(bookings)
         })
 
-        // app.get('/bookings', async (req, res) => {
-        //     const query = {}
-        //     const cursor = bookingsCollection.find(query)
-        //     const bookings = await cursor.toArray()
-        //     res.send(bookings)
-        // })
+
 
         // get a single booking
         app.get('/booking/:id', async (req, res) => {
