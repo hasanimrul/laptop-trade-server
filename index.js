@@ -81,8 +81,9 @@ async function run() {
         })
 
         // get all user
-        app.get('/users', async (req, res) => {
-            const query = {}
+        app.get('/users/:role', async (req, res) => {
+            const role = req.params.role
+            const query = { role: role }
             const cursor = usersCollection.find(query)
             const users = await cursor.toArray()
             res.send(users)
