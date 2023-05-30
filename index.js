@@ -47,6 +47,14 @@ async function run() {
             const result = await productsCollection.insertOne(product)
             res.send(result)
         })
+        
+         // get all products
+        app.get('/all-products', async (req, res) => {
+            const query = {}
+            const cursor = productsCollection.find(query)
+            const products = await cursor.toArray()
+            res.send(products)
+        })
 
         // get product category wise
         app.get('/category/:id', async (req, res) => {
